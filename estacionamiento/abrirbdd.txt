@@ -1,0 +1,4 @@
+BDD
+http://localhost/phpmyadmin
+Menu
+http://localhost/estacionamiento/Front/menu.html

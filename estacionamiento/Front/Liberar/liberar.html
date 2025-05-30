@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Liberar Plaza</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="sidebar">
+    <h2>ESTACIONAMIENTO</h2>
+    <a href="../menu.html">Menú Principal</a>
+    <a href="../Registro/registro.html">Registrar Vehículo</a>
+  </div>
+
+  <div class="main-content">
+    <div class="formulario">
+      <h2>Liberar Plaza</h2>
+      
+      <!-- Formulario de búsqueda -->
+      <form id="buscarForm" onsubmit="return buscarVehiculo(event)">
+        <label for="placa_buscar">Buscar por Placa:</label>
+        <input type="text" name="placa_buscar" id="placa_buscar" placeholder="Ej: ABC-123" required />
+        <input type="button" value="Buscar" onclick="buscarVehiculo(event)" style="background-color: #0066cc; margin-top: 10px;" />
+      </form>
+
+      <!-- Div para mostrar información del vehículo -->
+      <div id="info_vehiculo" style="display: none; margin: 20px 0; padding: 15px; background-color: #f0f8ff; border-radius: 8px;">
+        <h3>Información del Vehículo:</h3>
+        <div id="datos_vehiculo"></div>
+        
+        <!-- Formulario de liberación -->
+        <form id="liberarForm" method="POST" action="../../Back/liberar.php" style="margin-top: 15px;">
+          <input type="hidden" id="id_registro" name="id_registro" />
+          
+          <label for="fecha_salida_real">Hora de Salida:</label>
+          <input type="datetime-local" name="fecha_salida_real" id="fecha_salida_real" required />
+          
+          <div style="margin: 15px 0;">
+            <strong>Monto a Cobrar: S/. <span id="monto_cobrar">0.00</span></strong>
+          </div>
+          
+          <input type="submit" value="Liberar Plaza" style="background-color: #28a745;" />
+        </form>
+      </div>
+
+      <!-- Div para mostrar mensajes -->
+      <div id="mensaje" style="margin-top: 15px;"></div>
+    </div>
+  </div>
+
+  <script>
+    // Establecer fecha/hora actual al cargar la página
+    window.onload = function() {
+      const ahora = new Date();
+      const fechaLocal = new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60000);
+      document.getElementById('fecha_salida_real').value = fechaLocal.toISOString().slice(0, 16);
+    };
+
+    function buscarVehiculo(event) {
+      event.preventDefault();
+      
+      const placa = document.getElementById('placa_buscar').value.trim().toUpperCase();
+      
+      if (!placa) {
+        mostrarMensaje('Por favor ingrese una placa', 'error');
+        return false;
+      }
+
+      // Validar formato de placa peruana
+      const regexPlaca = /^[A-Z0-9]{3,4}-[0-9]{3}$/;
+      if (!regexPlaca.test(placa)) {
+        mostrarMensaje('Formato de placa inválido. Use: ABC-123 o ABCD-123', 'error');
+        return false;
+      }
+
+      // Hacer petición AJAX para buscar el vehículo
+      fetch('../../Back/buscar_vehiculo.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'placa=' + encodeURIComponent(placa)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          mostrarInfoVehiculo(data.vehiculo);
+        } else {
+          mostrarMensaje(data.message, 'error');
+          ocultarInfoVehiculo();
+        }
+      })
+      .catch(error => {
+        mostrarMensaje('Error al buscar el vehículo', 'error');
+        console.error('Error:', error);
+      });
+
+      return false;
+    }
+
+    function mostrarInfoVehiculo(vehiculo) {
+      const infoDiv = document.getElementById('info_vehiculo');
+      const datosDiv = document.getElementById('datos_vehiculo');
+      
+      datosDiv.innerHTML = `
+        <p><strong>Placa:</strong> ${vehiculo.placa}</p>
+        <p><strong>Marca:</strong> ${vehiculo.marca}</p>
+        <p><strong>Modelo:</strong> ${vehiculo.modelo}</p>
+        <p><strong>Color:</strong> ${vehiculo.color}</p>
+        <p><strong>Tipo:</strong> ${vehiculo.tipo}</p>
+        <p><strong>Espacio:</strong> ${vehiculo.numero_espacio}</p>
+        <p><strong>Hora Ingreso:</strong> ${vehiculo.fecha_ingreso}</p>
+        <p><strong>Tiempo Estimado:</strong> ${vehiculo.tiempo_estimado} horas</p>
+      `;
+      
+      document.getElementById('id_registro').value = vehiculo.id_registro;
+      document.getElementById('monto_cobrar').textContent = vehiculo.monto_calculado;
+      
+      infoDiv.style.display = 'block';
+      mostrarMensaje('Vehículo encontrado', 'success');
+    }
+
+    function ocultarInfoVehiculo() {
+      document.getElementById('info_vehiculo').style.display = 'none';
+    }
+
+    function mostrarMensaje(mensaje, tipo) {
+      const mensajeDiv = document.getElementById('mensaje');
+      mensajeDiv.innerHTML = `<div style="padding: 10px; border-radius: 5px; margin: 10px 0; color: white; background-color: ${tipo === 'error' ? '#dc3545' : '#28a745'};">${mensaje}</div>`;
+      
+      // Ocultar mensaje después de 3 segundos
+      setTimeout(() => {
+        mensajeDiv.innerHTML = '';
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

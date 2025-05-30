@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registrar Vehículo</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet" />
+  <script src="validacion.js"></script>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>ESTACIONAMIENTO</h2>
+    <a href="../menu.html">Menú Principal</a>
+  </div>
+
+  <div class="main-content">
+    <div class="formulario">
+      <h2>Registrar Vehículo</h2>
+      <form onsubmit="return validarFormulario()" method="POST" action="../../Back/registrar.php">
+        <label for="placa">Placa:</label>
+        <input type="text" name="placa" id="placa" required /><br />
+
+        <!-- Marca -->
+        <label for="marca">Marca:</label>
+        <select name="marca" id="marca" onchange="mostrarOtraMarca()" required>
+          <option value="">--Seleccionar--</option>
+          <option>Toyota</option>
+          <option>Hyundai</option>
+          <option>Mercedes Benz</option>
+          <option>BMW</option>
+          <option>Audi</option>
+          <option>SUZUKI</option>
+          <option>Chevrolet</option>
+          <option>Honda</option>
+          <option value="Otro">Otro</option>
+        </select>
+        <input
+          type="text"
+          id="otraMarca"
+          name="otraMarca"
+          placeholder="Especificar Marca"
+          style="display:none"
+        /><br />
+
+        <label for="modelo">Modelo:</label>
+        <input type="text" name="modelo" id="modelo" required /><br />
+
+        <!-- Color -->
+        <label for="color">Color:</label>
+        <select name="color" id="color" onchange="mostrarOtroColor()" required>
+          <option value="">--Seleccionar--</option>
+          <option>Negro</option>
+          <option>Blanco</option>
+          <option>Gris</option>
+          <option>Rojo</option>
+          <option>Azul</option>
+          <option>Plateado</option>
+          <option value="Otro">Otro</option>
+        </select>
+        <input
+          type="text"
+          id="otroColor"
+          name="otroColor"
+          placeholder="Especificar Color"
+          style="display:none"
+        /><br />
+
+        <label for="tipo">Tipo:</label>
+        <select name="tipo" id="tipo" required>
+          <option value="">--Seleccionar--</option>
+          <option>Sedan</option>
+          <option>Camioneta</option>
+          <option>Minivan</option>
+          <option>Van</option>
+          <option>Moto</option>
+        </select><br />
+
+       
+        <!-- Nuevo: Hora de ingreso (fecha y hora) -->
+        <label for="hora_ingreso">Hora de Ingreso:</label>
+        <input type="datetime-local" name="hora_ingreso" id="hora_ingreso" required /><br />
+
+ 
+
+        <!-- Nuevo: Tiempo estimado de permanencia (horas) -->
+        <label for="tiempo_est">Tiempo Estimado (horas):</label>
+        <input type="number" name="tiempo_est" id="tiempo_est" min="1" max="24" required /><br />
+
+        <input type="submit" value="Registrar" />
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function mostrarOtraMarca() {
+      var select = document.getElementById("marca");
+      var otro = document.getElementById("otraMarca");
+      if (select.value === "Otro") otro.style.display = "inline-block";
+      else otro.style.display = "none";
+    }
+
+    function mostrarOtroColor() {
+      var select = document.getElementById("color");
+      var otro = document.getElementById("otroColor");
+      if (select.value === "Otro") otro.style.display = "inline-block";
+      else otro.style.display = "none";
+    }
+  </script>
+</body>
+</html>
